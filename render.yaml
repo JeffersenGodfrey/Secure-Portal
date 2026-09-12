@@ -1,0 +1,49 @@
+# Render backend service (Node + Express + MySQL via Aiven + Cloudinary).
+# Any key with `sync: false` is a secret you fill in from the Render dashboard
+# when the service is created — nothing real is committed here.
+services:
+  - type: web
+    name: secure-content-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MYSQL_HOST
+        sync: false
+      - key: MYSQL_USER
+        sync: false
+      - key: MYSQL_PASSWORD
+        sync: false
+      - key: MYSQL_DATABASE
+        sync: false
+      - key: MYSQL_PORT
+        value: 22420
+      - key: MYSQL_SSL
+        value: "true"
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      # MUST be the deployed callback URL, e.g.
+      # https://secure-content-backend.onrender.com/auth/google/callback
+      - key: GOOGLE_CALLBACK_URL
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+      # The deployed client URL, e.g. https://your-app.vercel.app
+      - key: CLIENT_URL
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false

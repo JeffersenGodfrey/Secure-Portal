@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+/* Tell Tailwind v4 where to scan for utility classes. */
+@source "../index.html";
+@source "./**/*.{js,jsx}";
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: #fbf9f5; /* warm alabaster */
+  color: #1c1c1a; /* charcoal */
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* Chunky brutalist scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1c1c1a #fbf9f5;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: #fbf9f5;
+}
+*::-webkit-scrollbar-thumb {
+  background: #1c1c1a;
+  border: 2px solid #fbf9f5;
+}
