@@ -14,6 +14,7 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
+    "memorystore": "^1.6.8",
     "multer": "^2.3.0",
     "mysql2": "^3.24.4",
     "passport": "^0.7.0",

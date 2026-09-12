@@ -2,6 +2,7 @@ require('dotenv').config({ quiet: true });
 
 const express = require('express');
 const session = require('express-session');
+const MemoryStore = require('memorystore')(session);
 const cors = require('cors');
 const multer = require('multer');
 const pool = require('./db');
@@ -25,6 +26,9 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    store: new MemoryStore({
+      checkPeriod: 86400000,
+    }),
     cookie: {
       httpOnly: true,
       sameSite: 'lax',
