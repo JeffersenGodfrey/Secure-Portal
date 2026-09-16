@@ -76,6 +76,7 @@ export default function PdfRenderer({ signedUrl, expired }) {
         setRenderedPages(n);
       } catch (err) {
         if (gen !== genRef.current || err?.name === 'RenderingCancelledException') return;
+        console.error('[PdfRenderer Error]:', err);
         setError(RENDER_ERROR);
         return;
       }
@@ -105,7 +106,8 @@ export default function PdfRenderer({ signedUrl, expired }) {
         docRef.current = doc;
         setNumPages(doc.numPages);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error('[PdfRenderer Error]:', err);
         if (!cancelled) setError(RENDER_ERROR);
       })
       .finally(() => {
@@ -154,7 +156,7 @@ export default function PdfRenderer({ signedUrl, expired }) {
 
   if (expired) {
     return (
-      <div className="grid h-[70vh] max-h-[calc(90vh-11rem)] place-items-center border-2 border-[#1C1C1A] bg-white px-4 py-8 text-center">
+      <div className="grid h-full place-items-center border-2 border-[#1C1C1A] bg-white px-4 py-8 text-center">
         <div>
           <p className="font-black uppercase tracking-tight text-sm text-[#C1272D]">Link expired</p>
           <p className="mt-1 text-xs text-[#1C1C1A]/70">
@@ -167,7 +169,7 @@ export default function PdfRenderer({ signedUrl, expired }) {
 
   if (error) {
     return (
-      <div className="grid h-[70vh] max-h-[calc(90vh-11rem)] place-items-center border-2 border-[#C1272D] bg-white px-4 py-8 text-center">
+      <div className="grid h-full place-items-center border-2 border-[#C1272D] bg-white px-4 py-8 text-center">
         <div className="max-w-sm">
           <p className="inline-flex items-center gap-2 font-black uppercase tracking-tight text-xs text-[#C1272D]">
             <AlertTriangle size={14} strokeWidth={2} /> Render failed
@@ -180,7 +182,7 @@ export default function PdfRenderer({ signedUrl, expired }) {
 
   if (loading || !numPages) {
     return (
-      <div className="grid h-[70vh] max-h-[calc(90vh-11rem)] place-items-center bg-[#242422]">
+      <div className="grid h-full place-items-center bg-[#242422]">
         <div className="flex flex-col items-center gap-3">
           <span className="inline-flex items-center gap-2 border-2 border-[#1C1C1A] bg-white px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] shadow-[4px_4px_0px_0px_#1C1C1A]">
             <Loader2 size={14} strokeWidth={2} className="animate-spin" />
@@ -196,7 +198,7 @@ export default function PdfRenderer({ signedUrl, expired }) {
   }
 
   return (
-    <div className="relative">
+    <div className="relative flex h-full min-h-0 flex-col">
       <div className="absolute left-2 top-2 z-[60] flex items-center border-2 border-[#1C1C1A] bg-white shadow-[2px_2px_0px_0px_#1C1C1A]">
         <button
           onClick={() => setZoom((z) => Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(2)))}
@@ -226,7 +228,7 @@ export default function PdfRenderer({ signedUrl, expired }) {
 
       <div
         ref={containerRef}
-        className="flex flex-col items-center gap-4 h-[70vh] max-h-[calc(90vh-11rem)] overflow-auto bg-[#242422] p-4"
+        className="flex w-full flex-1 flex-col items-center gap-4 overflow-auto bg-[#242422] p-4"
       >
         {Array.from({ length: numPages }).map((_, i) => (
           <canvas

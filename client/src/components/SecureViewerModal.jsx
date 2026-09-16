@@ -88,7 +88,7 @@ export default function SecureViewerModal({ content, onClose }) {
   const blockContext = (e) => e.preventDefault();
 
   return (
-    <Modal title={`Secure viewer — ${content.title}`} onClose={onClose} width="max-w-4xl" fit>
+    <Modal title={`Secure viewer — ${content.title}`} onClose={onClose} width="max-w-5xl" fit>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <TypeBadge type={content.type} />
@@ -123,10 +123,10 @@ export default function SecureViewerModal({ content, onClose }) {
 
       <div
         onContextMenu={blockContext}
-        className="relative border-2 border-[#1C1C1A] bg-[#242422] select-none"
+        className="relative min-h-0 flex-1 select-none border-2 border-[#1C1C1A] bg-[#242422]"
       >
         {loading && (
-          <div className="grid h-[70vh] max-h-[calc(90vh-11rem)] place-items-center bg-[#FBF9F5]">
+          <div className="grid h-full place-items-center bg-[#FBF9F5]">
             <div className="flex flex-col items-center gap-3">
               <span className="inline-flex items-center gap-2 border-2 border-[#1C1C1A] bg-white px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] shadow-[4px_4px_0px_0px_#1C1C1A]">
                 <Loader2 size={14} strokeWidth={2} className="animate-spin" />
@@ -141,7 +141,7 @@ export default function SecureViewerModal({ content, onClose }) {
         )}
 
         {!loading && error && (
-          <div className="grid h-[70vh] max-h-[calc(90vh-11rem)] place-items-center bg-[#FBF9F5]">
+          <div className="grid h-full place-items-center bg-[#FBF9F5]">
             <div className="border-2 border-[#C1272D] bg-white px-4 py-3 text-center">
               <p className="inline-flex items-center gap-2 font-black uppercase tracking-tight text-xs text-[#C1272D]">
                 <AlertTriangle size={14} strokeWidth={2} /> {error}
@@ -151,7 +151,7 @@ export default function SecureViewerModal({ content, onClose }) {
         )}
 
         {!loading && !error && access && content.type === 'video' && (
-          <div className="relative grid h-[70vh] max-h-[calc(90vh-11rem)] place-items-center bg-black">
+          <div className="relative grid h-full place-items-center bg-black">
             <video
               src={access.signedUrl}
               controls
@@ -164,7 +164,7 @@ export default function SecureViewerModal({ content, onClose }) {
         )}
 
         {!loading && !error && access && content.type === 'pdf' && (
-          <div className="relative">
+          <div className="relative h-full">
             <PdfRenderer signedUrl={access.signedUrl} expired={expired} />
             {!expired && <Watermark email={user.email} />}
             <span className="absolute bottom-14 left-2 z-[60] inline-flex items-center gap-1 border-2 border-[#1C1C1A] bg-white px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-tight text-[#1C1C1A]">
@@ -174,9 +174,9 @@ export default function SecureViewerModal({ content, onClose }) {
         )}
 
         {!loading && !error && access && content.type === 'html' && (
-          <div className="relative">
+          <div className="relative h-full">
             {expired ? (
-              <div className="grid place-items-center h-48 border-2 border-[#1C1C1A] bg-white text-center">
+              <div className="grid h-full place-items-center border-2 border-[#1C1C1A] bg-white text-center">
                 <div>
                   <p className="font-black uppercase tracking-tight text-sm text-[#C1272D]">Link expired</p>
                   <p className="mt-1 text-xs text-[#1C1C1A]/70">
@@ -189,7 +189,7 @@ export default function SecureViewerModal({ content, onClose }) {
                 src={access.signedUrl}
                 sandbox="allow-scripts"
                 title={content.title}
-                className="h-[70vh] max-h-[calc(90vh-11rem)] w-full bg-white border-0"
+                className="h-full w-full bg-white border-0"
               />
             )}
             {!expired && <Watermark email={user.email} />}

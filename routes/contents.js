@@ -74,8 +74,12 @@ router.get('/:id/access', requireAuth, async (req, res, next) => {
     }
 
     const expiresAt = Math.floor(Date.now() / 1000) + 60;
+    // Must mirror the upload resource_type (upload.js): video for mp4, raw
+    // for pdf/html. Delivery type 'upload' matches how files are stored.
+    const resourceType = content.type === 'video' ? 'video' : 'raw';
     const signedUrl = cloudinary.url(publicId, {
-      resource_type: content.type === 'video' ? 'video' : 'raw',
+      resource_type: resourceType,
+      type: 'upload',
       sign_url: true,
       expires_at: expiresAt,
       secure: true,

@@ -18,7 +18,12 @@ export default function Modal({ title, onClose, children, width = 'max-w-2xl', f
       }}
     >
       <div
-        className={`w-full ${width} bg-[#FBF9F5] border-2 border-[#1C1C1A] shadow-[6px_6px_0px_0px_#1C1C1A] max-h-[90vh] ${fit ? 'overflow-hidden' : 'overflow-y-auto'}`}
+        className={
+          `w-full ${width} bg-[#FBF9F5] border-2 border-[#1C1C1A] shadow-[6px_6px_0px_0px_#1C1C1A] ` +
+          (fit
+            ? 'flex h-[80vh] min-h-[500px] max-h-[80vh] flex-col overflow-hidden'
+            : 'max-h-[90vh] overflow-y-auto')
+        }
       >
         <div className="flex items-center justify-between border-b-2 border-[#1C1C1A] px-4 py-3 bg-white">
           <h2 className="font-black uppercase tracking-tight text-sm text-[#1C1C1A]">{title}</h2>
@@ -30,7 +35,7 @@ export default function Modal({ title, onClose, children, width = 'max-w-2xl', f
             <X size={15} />
           </button>
         </div>
-        <div className="px-4 py-4">{children}</div>
+        <div className={fit ? 'flex min-h-0 flex-1 flex-col px-4 py-4' : 'px-4 py-4'}>{children}</div>
       </div>
     </div>
   );
