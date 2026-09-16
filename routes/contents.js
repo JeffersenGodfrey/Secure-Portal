@@ -45,7 +45,7 @@ function uploadToCloudinary(file) {
 router.get('/', requireAuth, async (req, res, next) => {
   try {
     const [rows] = await pool.query(
-      `SELECT id, title, description, category, type, file_path, views_count, created_at
+      `SELECT id, title, description, category, type, views_count, created_at
        FROM contents
        ORDER BY created_at DESC`
     );
@@ -114,7 +114,7 @@ router.post('/', requireAuth, requireAdmin, upload, async (req, res, next) => {
     );
 
     const [rows] = await pool.query(
-      `SELECT id, title, description, category, type, file_path, views_count, created_at
+      `SELECT id, title, description, category, type, views_count, created_at
        FROM contents WHERE id = ?`,
       [result.insertId]
     );
@@ -144,7 +144,7 @@ router.put('/:id', requireAuth, requireAdmin, async (req, res, next) => {
     }
 
     const [rows] = await pool.query(
-      `SELECT id, title, description, category, type, file_path, views_count, created_at
+      `SELECT id, title, description, category, type, views_count, created_at
        FROM contents WHERE id = ?`,
       [id]
     );
@@ -158,6 +158,28 @@ router.delete('/:id', requireAuth, requireAdmin, async (req, res, next) => {
   try {
     const id = Number(req.params.id);
     if (!Number.isInteger(id)) return res.status(400).json({ message: 'Invalid id' });
+
+    const [rows] = await pool.query(
+      'SELECT id, type, file_path FROM contents WHERE id = ?',
+      [id]
+    );
+    if (!rows[0]) return res.status(404).json({ message: 'Content not found' });
+    const content = rows[0];
+
+    // Remove the stored asset so a deleted item is really gone from storage.
+    // A Cloudinary hiccup must not block the deletion, though — the MySQL row
+    // is the source of truth for the library, so we log and continue.
+    const publicId = getPublicId(content.file_path, content.type);
+    if (publicId) {
+      try {
+        await cloudinary.uploader.destroy(publicId, {
+          resource_type: content.type === 'video' ? 'video' : 'raw',
+          invalidate: true,
+        });
+      } catch (cloudErr) {
+        console.error(`[Cloudinary] Failed to delete asset ${publicId}:`, cloudErr.message);
+      }
+    }
 
     const [result] = await pool.query('DELETE FROM contents WHERE id = ?', [id]);
     if (result.affectedRows === 0) {

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
 
-export default function Modal({ title, onClose, children, width = 'max-w-2xl' }) {
+export default function Modal({ title, onClose, children, width = 'max-w-2xl', fit = false }) {
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === 'Escape') onClose();
@@ -18,7 +18,7 @@ export default function Modal({ title, onClose, children, width = 'max-w-2xl' })
       }}
     >
       <div
-        className={`w-full ${width} bg-[#FBF9F5] border-2 border-[#1C1C1A] shadow-[6px_6px_0px_0px_#1C1C1A] max-h-[90vh] overflow-y-auto`}
+        className={`w-full ${width} bg-[#FBF9F5] border-2 border-[#1C1C1A] shadow-[6px_6px_0px_0px_#1C1C1A] max-h-[90vh] ${fit ? 'overflow-hidden' : 'overflow-y-auto'}`}
       >
         <div className="flex items-center justify-between border-b-2 border-[#1C1C1A] px-4 py-3 bg-white">
           <h2 className="font-black uppercase tracking-tight text-sm text-[#1C1C1A]">{title}</h2>

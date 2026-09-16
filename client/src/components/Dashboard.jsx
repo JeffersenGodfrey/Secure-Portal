@@ -45,7 +45,7 @@ export default function Dashboard({ search, category, uploadOpen, onUploadClose 
   );
 
   return (
-    <main className="px-6 py-8">
+    <main className="mx-auto w-full max-w-7xl px-6 py-8">
       <div className="flex items-center justify-between border-b-2 border-[#1C1C1A] py-2">
         <h2 className="font-black uppercase tracking-tight text-sm text-[#1C1C1A]">Library index</h2>
         <p className="text-[10px] uppercase tracking-[0.15em] text-[#1C1C1A]/60">
@@ -82,7 +82,7 @@ export default function Dashboard({ search, category, uploadOpen, onUploadClose 
               </div>
 
               <div className="px-3 py-4 flex-1">
-                <h3 className="font-black uppercase tracking-tight text-sm leading-tight text-[#1C1C1A]">
+                <h3 className="line-clamp-2 font-black uppercase tracking-tight text-sm leading-tight text-[#1C1C1A]">
                   {item.title}
                 </h3>
                 <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-[#1C1C1A]/70">
@@ -119,6 +119,17 @@ export default function Dashboard({ search, category, uploadOpen, onUploadClose 
               </div>
             </article>
           ))}
+        </div>
+      )}
+
+      {!loading && !error && filtered.length === 0 && (
+        <div className="mt-6 border-2 border-dashed border-[#1C1C1A]/40 bg-white px-6 py-12 text-center">
+          <p className="font-black uppercase tracking-tight text-sm text-[#1C1C1A]">
+            No content found
+          </p>
+          <p className="mt-2 text-xs leading-relaxed text-[#1C1C1A]/70">
+            No content found matching your search. Try adjusting your filters.
+          </p>
         </div>
       )}
 

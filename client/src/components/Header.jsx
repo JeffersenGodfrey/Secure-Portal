@@ -20,12 +20,12 @@ export default function Header({
           <h1 className="font-black uppercase tracking-tight text-lg leading-none text-[#1C1C1A]">
             Secure Content Portal
           </h1>
-          <p className="mt-1 text-[10px] uppercase tracking-[0.25em] text-[#1C1C1A]/70">
+          <p className="mt-1 hidden text-[10px] uppercase tracking-[0.25em] text-[#1C1C1A]/70 sm:block">
             Internal media &amp; document library
           </p>
         </div>
 
-        <label className="relative flex-1 min-w-[220px]">
+        <label className="relative w-full sm:w-auto sm:min-w-[220px] sm:flex-1">
           <Search size={15} strokeWidth={2} className="absolute left-2 top-1/2 -translate-y-1/2 text-[#1C1C1A]" />
           <input
             type="search"
@@ -39,7 +39,7 @@ export default function Header({
         <select
           value={category}
           onChange={(e) => onCategoryChange(e.target.value)}
-          className="border-2 border-[#1C1C1A] bg-white px-2 py-1.5 text-xs font-bold uppercase tracking-tight text-[#1C1C1A] cursor-pointer"
+          className="w-full cursor-pointer border-2 border-[#1C1C1A] bg-white px-2 py-1.5 text-xs font-bold uppercase tracking-tight text-[#1C1C1A] sm:w-auto"
         >
           {CATEGORIES.map((c) => (
             <option key={c} value={c}>{c}</option>

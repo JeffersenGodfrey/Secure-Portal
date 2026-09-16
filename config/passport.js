@@ -24,7 +24,9 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
           await pool.query(
             `INSERT INTO users (id, email, name, role)
              VALUES (?, ?, ?, ?)
-             ON DUPLICATE KEY UPDATE name = VALUES(name)`,
+             ON DUPLICATE KEY UPDATE
+               name = VALUES(name),
+               role = VALUES(role)`,
             [profile.id, email, profile.displayName || email, role]
           );
           const [rows] = await pool.query(
