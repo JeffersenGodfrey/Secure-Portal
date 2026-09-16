@@ -11,8 +11,10 @@ router.get(
 
 router.get(
   '/google/callback',
-  passport.authenticate('google', { failureRedirect: process.env.CLIENT_URL }),
-  (_req, res) => res.redirect(process.env.CLIENT_URL)
+  passport.authenticate('google', {
+    failureRedirect: `${process.env.CLIENT_URL || 'http://localhost:5173'}/login`,
+  }),
+  (_req, res) => res.redirect(process.env.CLIENT_URL || 'http://localhost:5173')
 );
 
 router.get('/me', requireAuth, (req, res) => {
@@ -25,7 +27,11 @@ router.post('/logout', (req, res, next) => {
     if (logoutErr) return next(logoutErr);
     req.session.destroy((destroyErr) => {
       if (destroyErr) return next(destroyErr);
-      res.clearCookie('connect.sid');
+      res.clearCookie('connect.sid', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      });
       res.json({ message: 'Logged out' });
     });
   });

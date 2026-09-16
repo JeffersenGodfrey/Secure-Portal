@@ -23,16 +23,19 @@ app.use(
 app.use(express.json());
 app.use(
   session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'dev_secret',
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     store: new MemoryStore({
       checkPeriod: 86400000,
     }),
     cookie: {
       httpOnly: true,
-      sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
+      // 'none' is required in production so the cookie survives cross-site
+      // requests from the Vercel frontend to the Render backend.
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 24 * 60 * 60 * 1000,
     },
   })
