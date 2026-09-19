@@ -168,11 +168,11 @@ export default function SecureViewerModal({ content, onClose }) {
         {!loading && !error && access && content.type === 'html' && (
           <div className="relative h-full w-full">
             {expired ? (
-              <div className="grid h-full place-items-center border-2 border-[#1C1C1A] bg-white text-center">
-                <div>
+              <div className="grid h-full w-full place-items-center bg-[#1e1e1c]">
+                <div className="border border-white/15 bg-white px-6 py-4 text-center shadow-md">
                   <p className="font-black uppercase tracking-tight text-sm text-[#C1272D]">Link expired</p>
                   <p className="mt-1 text-xs text-[#1C1C1A]/70">
-                    Use the Refresh link button above to continue viewing.
+                    Use the Refresh Preview button below to continue viewing.
                   </p>
                 </div>
               </div>
