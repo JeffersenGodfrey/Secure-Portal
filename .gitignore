@@ -22,3 +22,5 @@ server_direct.log*
 Thumbs.db
 .idea/
 .vscode/
+.vercel
+.env*

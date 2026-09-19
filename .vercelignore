@@ -1,0 +1,8 @@
+# Never upload secrets or local artifacts to Vercel
+.env
+.env.*
+*.log
+node_modules
+.git
+vc_*.json
+client/dist
