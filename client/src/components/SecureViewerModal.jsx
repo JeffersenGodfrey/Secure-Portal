@@ -88,45 +88,37 @@ export default function SecureViewerModal({ content, onClose }) {
   const blockContext = (e) => e.preventDefault();
 
   return (
-    <Modal title={`Secure viewer — ${content.title}`} onClose={onClose} width="max-w-5xl" fit>
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <div className="flex flex-wrap items-center gap-2">
+    <Modal title={`Secure viewer — ${content.title}`} onClose={onClose} width="max-w-6xl w-[95vw]" fit>
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-[#1C1C1A]/15 bg-white px-3 py-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           <TypeBadge type={content.type} />
           <CategoryTag category={content.category} />
-          <span className="max-w-[300px] truncate text-[11px] font-bold uppercase tracking-tight text-[#1C1C1A]">
+          <span className="max-w-[320px] truncate text-[11px] font-bold uppercase tracking-tight text-[#1C1C1A]">
             {content.title}
           </span>
         </div>
 
         {access && (
-          <div className="flex items-center gap-2">
+          <span className="inline-flex shrink-0 items-center gap-1.5 text-xs text-zinc-400">
             <span
               className={
-                'inline-flex items-center gap-1.5 border-2 border-[#1C1C1A] px-2 py-1 font-mono text-[11px] uppercase ' +
-                (expired || countdown <= 10
-                  ? 'bg-[#C1272D] text-white'
-                  : 'bg-white text-[#1C1C1A]')
+                'inline-block h-1.5 w-1.5 rounded-full ' +
+                (expired ? 'bg-zinc-400' : countdown <= 10 ? 'bg-amber-500' : 'bg-emerald-500')
               }
-            >
-              <Lock size={11} strokeWidth={2} />
-              {expired ? 'Expired' : `Expires in ${countdown}s`}
-            </span>
-            <button
-              onClick={refreshLink}
-              className="inline-flex items-center gap-1 border-2 border-[#1C1C1A] bg-[#002FA7] text-white px-2 py-1 text-[10px] font-black uppercase tracking-tight shadow-[2px_2px_0px_0px_#1C1C1A] active:translate-x-[2px] active:translate-y-[2px] cursor-pointer"
-            >
-              <RefreshCw size={13} strokeWidth={2} /> Refresh link
-            </button>
-          </div>
+            />
+            <span className="font-medium">Protected Link</span>
+            <span aria-hidden="true">&middot;</span>
+            <span>{expired ? 'Expired' : `Expires in ${countdown}s`}</span>
+          </span>
         )}
       </div>
 
       <div
         onContextMenu={blockContext}
-        className="relative min-h-0 flex-1 select-none border-2 border-[#1C1C1A] bg-[#242422]"
+        className="relative flex h-full min-h-0 flex-1 select-none overflow-hidden bg-[#1e1e1c]"
       >
         {loading && (
-          <div className="grid h-full place-items-center bg-[#FBF9F5]">
+          <div className="grid h-full w-full place-items-center bg-[#1e1e1c]">
             <div className="flex flex-col items-center gap-3">
               <span className="inline-flex items-center gap-2 border-2 border-[#1C1C1A] bg-white px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] shadow-[4px_4px_0px_0px_#1C1C1A]">
                 <Loader2 size={14} strokeWidth={2} className="animate-spin" />
@@ -141,7 +133,7 @@ export default function SecureViewerModal({ content, onClose }) {
         )}
 
         {!loading && error && (
-          <div className="grid h-full place-items-center bg-[#FBF9F5]">
+          <div className="grid h-full w-full place-items-center bg-[#1e1e1c]">
             <div className="border-2 border-[#C1272D] bg-white px-4 py-3 text-center">
               <p className="inline-flex items-center gap-2 font-black uppercase tracking-tight text-xs text-[#C1272D]">
                 <AlertTriangle size={14} strokeWidth={2} /> {error}
@@ -151,7 +143,7 @@ export default function SecureViewerModal({ content, onClose }) {
         )}
 
         {!loading && !error && access && content.type === 'video' && (
-          <div className="relative grid h-full place-items-center bg-black">
+          <div className="relative grid h-full w-full place-items-center bg-black">
             <video
               src={access.signedUrl}
               controls
@@ -164,17 +156,17 @@ export default function SecureViewerModal({ content, onClose }) {
         )}
 
         {!loading && !error && access && content.type === 'pdf' && (
-          <div className="relative h-full">
+          <div className="relative h-full w-full">
             <PdfRenderer signedUrl={access.signedUrl} expired={expired} />
             {!expired && <Watermark email={user.email} />}
-            <span className="absolute bottom-14 left-2 z-[60] inline-flex items-center gap-1 border-2 border-[#1C1C1A] bg-white px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-tight text-[#1C1C1A]">
+            <span className="absolute bottom-3 left-3 z-[60] inline-flex items-center gap-1 border border-white/15 bg-[#1C1C1A]/95 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-tight text-zinc-300 backdrop-blur">
               <Lock size={10} strokeWidth={2} /> No download
             </span>
           </div>
         )}
 
         {!loading && !error && access && content.type === 'html' && (
-          <div className="relative h-full">
+          <div className="relative h-full w-full">
             {expired ? (
               <div className="grid h-full place-items-center border-2 border-[#1C1C1A] bg-white text-center">
                 <div>
@@ -197,11 +189,26 @@ export default function SecureViewerModal({ content, onClose }) {
         )}
       </div>
 
-      <p className="mt-3 flex items-start gap-1.5 text-[10px] leading-relaxed text-[#1C1C1A]/60">
-        <Lock size={11} strokeWidth={2} className="mt-0.5 shrink-0" />
-        Session-locked: {user.email}. Right-click is disabled and links expire
-        after 60 seconds.
-      </p>
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-[#1C1C1A]/15 bg-white px-3 py-1.5">
+        <p className="flex items-center gap-1.5 text-[10px] leading-relaxed text-zinc-400">
+          <Lock size={10} strokeWidth={2} className="shrink-0" />
+          Session-locked: {user.email} &middot; right-click disabled
+        </p>
+
+        {access && (expired || countdown <= 10) && (
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-zinc-500">
+              {expired ? 'Session expired' : `Expires in ${countdown}s`}
+            </span>
+            <button
+              onClick={refreshLink}
+              className="inline-flex items-center gap-1 border-2 border-[#1C1C1A] bg-[#002FA7] px-2 py-0.5 text-[10px] font-black uppercase tracking-tight text-white shadow-[2px_2px_0px_0px_#1C1C1A] active:translate-x-[2px] active:translate-y-[2px] cursor-pointer"
+            >
+              <RefreshCw size={12} strokeWidth={2} /> Refresh Preview
+            </button>
+          </div>
+        )}
+      </div>
     </Modal>
   );
 }

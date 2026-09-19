@@ -25,6 +25,7 @@ export default function PdfRenderer({ signedUrl, expired }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [zoom, setZoom] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Draws every page sequentially onto its canvas, sized to the container.
   const renderAll = useCallback(async () => {
@@ -154,13 +155,52 @@ export default function PdfRenderer({ signedUrl, expired }) {
     };
   }, [renderAll, numPages]);
 
+  // Derives the page currently filling the viewport, for the toolbar readout.
+  const updateCurrentPage = useCallback(() => {
+    const container = containerRef.current;
+    if (!container || !numPages) return;
+    const mid = container.scrollTop + container.clientHeight / 2;
+    let best = 1;
+    let bestDist = Infinity;
+    for (let n = 1; n <= numPages; n++) {
+      const canvas = canvasRefs.current[n];
+      if (!canvas) continue;
+      const center = canvas.offsetTop + canvas.offsetHeight / 2;
+      const dist = Math.abs(center - mid);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = n;
+      }
+    }
+    setCurrentPage(best);
+  }, [numPages]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        updateCurrentPage();
+      });
+    };
+    container.addEventListener('scroll', onScroll, { passive: true });
+    updateCurrentPage();
+    return () => {
+      container.removeEventListener('scroll', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [updateCurrentPage, renderedPages]);
+
   if (expired) {
     return (
-      <div className="grid h-full place-items-center border-2 border-[#1C1C1A] bg-white px-4 py-8 text-center">
-        <div>
+      <div className="grid h-full w-full place-items-center bg-[#1e1e1c]">
+        <div className="border border-white/15 bg-white px-6 py-4 text-center shadow-md">
           <p className="font-black uppercase tracking-tight text-sm text-[#C1272D]">Link expired</p>
           <p className="mt-1 text-xs text-[#1C1C1A]/70">
-            Use the Refresh link button above to request a fresh 60-second link.
+            Use the Refresh Preview button below to request a fresh 60-second link.
           </p>
         </div>
       </div>
@@ -169,8 +209,8 @@ export default function PdfRenderer({ signedUrl, expired }) {
 
   if (error) {
     return (
-      <div className="grid h-full place-items-center border-2 border-[#C1272D] bg-white px-4 py-8 text-center">
-        <div className="max-w-sm">
+      <div className="grid h-full w-full place-items-center bg-[#1e1e1c]">
+        <div className="max-w-sm border border-white/15 bg-white px-6 py-4 text-center shadow-md">
           <p className="inline-flex items-center gap-2 font-black uppercase tracking-tight text-xs text-[#C1272D]">
             <AlertTriangle size={14} strokeWidth={2} /> Render failed
           </p>
@@ -182,7 +222,7 @@ export default function PdfRenderer({ signedUrl, expired }) {
 
   if (loading || !numPages) {
     return (
-      <div className="grid h-full place-items-center bg-[#242422]">
+      <div className="grid h-full w-full place-items-center bg-[#1e1e1c]">
         <div className="flex flex-col items-center gap-3">
           <span className="inline-flex items-center gap-2 border-2 border-[#1C1C1A] bg-white px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] shadow-[4px_4px_0px_0px_#1C1C1A]">
             <Loader2 size={14} strokeWidth={2} className="animate-spin" />
@@ -199,20 +239,23 @@ export default function PdfRenderer({ signedUrl, expired }) {
 
   return (
     <div className="relative flex h-full min-h-0 flex-col">
-      <div className="absolute left-2 top-2 z-[60] flex items-center border-2 border-[#1C1C1A] bg-white shadow-[2px_2px_0px_0px_#1C1C1A]">
+      {/* Floating reading toolbar — dark, top-center, keeps the stage uncluttered */}
+      <div className="absolute left-1/2 top-3 z-[60] flex -translate-x-1/2 items-stretch divide-x divide-white/15 border border-white/15 bg-[#1C1C1A]/95 text-white shadow-lg backdrop-blur">
         <button
           onClick={() => setZoom((z) => Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(2)))}
           disabled={zoom <= ZOOM_MIN}
           aria-label="Zoom out"
-          className="grid h-7 w-7 place-items-center border-r-2 border-[#1C1C1A] text-[#1C1C1A] hover:bg-[#FBF9F5] active:translate-y-[1px] disabled:opacity-40 cursor-pointer"
+          title="Zoom out"
+          className="grid h-8 w-8 place-items-center hover:bg-white/10 disabled:opacity-35 cursor-pointer"
         >
           <Minus size={13} strokeWidth={2.5} />
         </button>
         <button
           onClick={() => setZoom(1)}
           disabled={zoom === 1}
-          aria-label="Reset zoom"
-          className="h-7 border-r-2 border-[#1C1C1A] px-2 font-mono text-[10px] uppercase tracking-tight text-[#1C1C1A] hover:bg-[#FBF9F5] disabled:opacity-40 cursor-pointer"
+          aria-label="Reset zoom to fit"
+          title="Reset / Fit"
+          className="h-8 px-2.5 font-mono text-[10px] uppercase tracking-tight hover:bg-white/10 disabled:opacity-60 cursor-pointer"
         >
           {Math.round(zoom * 100)}%
         </button>
@@ -220,36 +263,40 @@ export default function PdfRenderer({ signedUrl, expired }) {
           onClick={() => setZoom((z) => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(2)))}
           disabled={zoom >= ZOOM_MAX}
           aria-label="Zoom in"
-          className="grid h-7 w-7 place-items-center text-[#1C1C1A] hover:bg-[#FBF9F5] active:translate-y-[1px] disabled:opacity-40 cursor-pointer"
+          title="Zoom in"
+          className="grid h-8 w-8 place-items-center hover:bg-white/10 disabled:opacity-35 cursor-pointer"
         >
           <Plus size={13} strokeWidth={2.5} />
         </button>
+        <span className="flex select-none items-center whitespace-nowrap px-2.5 font-mono text-[10px] uppercase tracking-tight text-zinc-300">
+          Page {Math.min(currentPage, numPages)} of {numPages}
+        </span>
       </div>
 
+      {/* The one and only scroll container for the document */}
       <div
         ref={containerRef}
-        className="flex w-full flex-1 flex-col items-center gap-4 overflow-auto bg-[#242422] p-4"
+        className="relative h-full w-full flex-1 overflow-auto bg-[#1e1e1c] p-4"
       >
-        {Array.from({ length: numPages }).map((_, i) => (
-          <canvas
-            key={i}
-            ref={(el) => {
-              canvasRefs.current[i + 1] = el;
-            }}
-            className="max-w-full bg-white shadow-[3px_3px_0px_0px_#000]"
-          />
-        ))}
+        <div className="mx-auto flex w-fit flex-col items-center gap-4">
+          {Array.from({ length: numPages }).map((_, i) => (
+            <canvas
+              key={i}
+              ref={(el) => {
+                canvasRefs.current[i + 1] = el;
+              }}
+              className="block bg-white shadow-md"
+            />
+          ))}
+        </div>
       </div>
 
       {renderedPages < numPages && (
-        <span className="absolute bottom-2 right-2 inline-flex items-center gap-1.5 border-2 border-[#1C1C1A] bg-white px-2 py-1 font-mono text-[10px] uppercase tracking-tight">
+        <span className="absolute bottom-3 right-3 z-[60] inline-flex items-center gap-1.5 border border-white/15 bg-[#1C1C1A]/95 px-2 py-1 font-mono text-[10px] uppercase tracking-tight text-zinc-300 backdrop-blur">
           <Loader2 size={11} strokeWidth={2} className="animate-spin" />
           Rendering {renderedPages + 1} / {numPages}
         </span>
       )}
-      <span className="absolute top-2 right-2 border-2 border-[#1C1C1A] bg-white px-2 py-0.5 font-mono text-[10px] uppercase tracking-tight">
-        {numPages} page{numPages === 1 ? '' : 's'}
-      </span>
     </div>
   );
 }
