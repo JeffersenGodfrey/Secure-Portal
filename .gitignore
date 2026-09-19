@@ -12,6 +12,10 @@ client/dist/
 # Logs
 npm-debug.log*
 *.log
+server_direct.log*
+
+# Local debug artifacts
+.dbproof.txt
 
 # OS / editor
 .DS_Store

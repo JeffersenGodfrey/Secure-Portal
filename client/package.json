@@ -13,7 +13,8 @@
     "lucide-react": "^1.42.0",
     "pdfjs-dist": "^4.10.38",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "secure-content-backend": "file:.."
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",

@@ -1,9 +1,0 @@
-﻿--- UI-independent endpoints (no DB needed) ---
-GET /healthz        -> ERR
-GET /auth/me        -> 0
---- DB-dependent endpoints (fail without DB) ---
-GET /api/contents   -> 0 (DB unreachable)
-GET /1/access       -> 0 (auth gate fires before DB anyway)
---- boot log ---
-
-
