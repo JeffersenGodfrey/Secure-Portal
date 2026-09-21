@@ -80,7 +80,7 @@ Authentication is handled by Google OAuth 2.0. The first account matching `ADMIN
      GitHub mobile, in screen readers, and when images are disabled.
 -->
 
-![Secure Content Portal Architecture](https://cdn-ai-hs.picsart.com/ai-hot-storage/4d156cb6-20f6-4c56-bc8f-06998febb650.png)
+![Secure Content Portal — system architecture](https://github.com/user-attachments/assets/c9650f87-9118-47b8-8f50-9638e706ecc3)
 
 ### Components
 
