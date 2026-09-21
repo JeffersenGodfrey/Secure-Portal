@@ -104,84 +104,54 @@ Authentication is handled by Google OAuth 2.0. The first account matching `ADMIN
 
 ## Request Flows
 
-### 1. Authentication
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant U as User (browser)
-    participant S as SPA (Vercel)
-    participant A as API (Render)
-    participant G as Google OAuth 2.0
-    participant D as TiDB Cloud
-
-    U->>S: Click the Google sign-in button
-    S->>A: GET /auth/google
-    A->>G: 302 to accounts.google.com (scope: profile email)
-    G->>U: Account chooser and consent
-    U->>G: Grant access
-    G->>A: GET /auth/google/callback?code=...
-    A->>G: Exchange authorization code
-    G-->>A: Verified profile and email
-    A->>D: INSERT INTO users ... ON DUPLICATE KEY UPDATE name, role
-    D-->>A: Persisted user row
-    A->>A: Serialize user id into the session
-    A->>U: 302 to CLIENT_URL with Set-Cookie (httpOnly, Secure, SameSite=None)
-    U->>S: Authenticated session established
-```
-
-### 2. Secure content access
+### Sign-in and secure access
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant U as User
-    participant S as SPA (Vercel)
-    participant A as API (Render)
-    participant D as TiDB Cloud
+    participant S as SPA
+    participant A as API
+    participant G as Google
     participant C as Cloudinary
 
-    U->>S: Open an item in the secure viewer
-    S->>A: GET /api/contents/:id/access (session cookie)
+    U->>S: Sign in with Google
+    S->>A: GET /auth/google
+    A->>G: Request authorization
+    G-->>A: Verified email
+    A->>A: Assign role, start session
+    A-->>U: Set session cookie
+
+    U->>S: Open an item
+    S->>A: GET /api/contents/:id/access
     A->>A: requireAuth
-    A->>D: SELECT file_path FROM contents WHERE id = ?
-    D-->>A: Stored Cloudinary URL
-    A->>A: Derive public_id, sign URL with expires_at = now + 60s
-    A->>D: UPDATE contents SET views_count = views_count + 1
-    A-->>S: { signedUrl, expiresInSeconds: 60 }
-    S->>C: Request the signed URL
-    C-->>S: Asset bytes (signature valid and unexpired)
-    S->>S: Render to canvas / video / iframe with watermark overlay
-    Note over S,C: After 60 seconds the signature is rejected.<br/>The viewer prompts for a fresh link.
+    A->>C: Sign asset URL for 60 seconds
+    A-->>S: signedUrl
+    S->>C: Fetch signed URL
+    C-->>S: Asset bytes
+    S->>S: Render with watermark
 ```
 
-### 3. Access control decision
+### Authorization
 
-```mermaid
-flowchart TD
-    A[Incoming API request] --> B{Session authenticated?}
-    B -- No --> C[401 Unauthorized]
-    B -- Yes --> D{Route declared requireAdmin?}
-    D -- No --> E[Proceed: authenticated read]
-    D -- Yes --> F{role is admin?}
-    F -- No --> G[403 Forbidden]
-    F -- Yes --> H[Proceed: upload, update or delete]
-```
-
-### 4. Content lifecycle
+Three rules cover every route.
 
 ```mermaid
 flowchart LR
-    A[Admin selects a file] --> B{Extension and MIME allowlisted?}
-    B -- No --> C[400 Invalid file type]
-    B -- Yes --> D[multer buffers in memory, max 50 MB]
-    D --> E[Map MIME to resource type<br/>mp4 to video, pdf/html to raw]
-    E --> F[Stream to Cloudinary folder secure_content]
-    F --> G[Store returned secure_url as file_path]
-    G --> H[List and read endpoints omit file_path]
-    H --> I[On view: sign the public_id for 60 seconds]
-    I --> J[On delete: destroy the Cloudinary asset, then delete the row]
+    A[Request] --> B{Signed in?}
+    B -- No --> C[401]
+    B -- Yes --> D{Admin route?}
+    D -- No --> E[Allow read]
+    D -- Yes --> F{Admin?}
+    F -- No --> G[403]
+    F -- Yes --> H[Allow write]
 ```
+
+| Access level | Routes |
+| :--- | :--- |
+| Public | `/healthz`, `/auth/*` |
+| Signed in | `GET /api/contents`, `GET /api/contents/:id/access` |
+| Admin | `POST`, `PUT`, `DELETE /api/contents` |
 
 ---
 
