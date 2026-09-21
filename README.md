@@ -9,8 +9,8 @@ A full-stack, role-based library for distributing videos, PDFs and HTML document
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![MySQL](https://img.shields.io/badge/Database-TiDB_Cloud-4479A1?logo=mysql&logoColor=white)](https://www.pingcap.com/tidb-cloud/)
 [![Cloudinary](https://img.shields.io/badge/Storage-Cloudinary-3448C5?logo=cloudinary&logoColor=white)](https://cloudinary.com)
-[![Deployed on Render](https://img.shields.io/badge/API-Render-46E3B7)](https://render.com)
-[![Deployed on Vercel](https://img.shields.io/badge/SPA-Vercel-000000?logo=vercel&logoColor=white)](https://vercel.com)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-secure--portal--project.vercel.app-000000?logo=vercel&logoColor=white)](https://secure-portal-project.vercel.app)
+[![Live API](https://img.shields.io/badge/Live_API-secure--portal--2kx5.onrender.com-46E3B7)](https://secure-portal-2kx5.onrender.com/healthz)
 
 ---
 
@@ -452,6 +452,14 @@ Server-side variables live in `.env` (never committed). Client-side variables mu
 
 The application runs as two independent services.
 
+### Live deployment
+
+| Service | URL |
+| :--- | :--- |
+| SPA (Vercel) | https://secure-portal-project.vercel.app |
+| API (Render) | https://secure-portal-2kx5.onrender.com |
+| Health check | https://secure-portal-2kx5.onrender.com/healthz |
+
 ### API — Render
 
 `render.yaml` defines the service. Build command `npm install`, start command `npm start`, health check path `/healthz`.
@@ -483,7 +491,9 @@ Register the deployed callback under **Authorized redirect URIs**:
 https://<render-service>.onrender.com/auth/google/callback
 ```
 
-Set the **App name** and **User support email** on the OAuth consent screen, and publish the app. Only `profile` and `email` are requested — both non-sensitive scopes — so no verification review is required. Until an app name is published, Google substitutes the redirect URI's host for it on the account chooser screen.
+Set the **App name** and **User support email** on the OAuth consent screen, then publish the app. Only `profile` and `email` are requested — both non-sensitive scopes — so no data-access review is required. Publishing matters for more than presentation: while an app is in *Testing*, only accounts on its test-user list can sign in, and that list is capped at 100 users.
+
+Google shows the app name instead of a bare domain only once **brand verification** has passed and the branding has been published. Brand verification requires proving ownership of the home page domain, which is not possible on a shared `onrender.com` or `vercel.app` host — ownership of the parent domain cannot be proven through Search Console. Until the app is served from an owned domain, the account chooser reads *Choose an account to continue to* followed by the redirect URI's host.
 
 ---
 
