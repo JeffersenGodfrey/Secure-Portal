@@ -548,7 +548,7 @@ Constraints and decisions worth knowing before running this in earnest.
 
 ## License
 
-Released for educational and portfolio use. See the repository owner for terms regarding redistribution.
+Released for educational and portfolio use. See the repository owner (click profile) for terms regarding redistribution.
 
 ---
 
