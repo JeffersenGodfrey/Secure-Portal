@@ -533,7 +533,7 @@ This project is released under the [MIT License](LICENSE). Full text:
 ```text
 MIT License
 
-Copyright (c) 2026 Jeffersen Godfrey
+Copyright (c) 2026 Jeffersen Godfrey A M
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
